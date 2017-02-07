@@ -1,10 +1,25 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <style>
+            body {
+                text-align: center;
+                background: linear-gradient(rgb(0,51,153), rgb(102, 153, 255), rgb(255, 255, 255), rgb(51, 102, 204)) fixed; 
+            }
+            h2 {
+                color: white;
+            }
+            span {
+                background: rgba(255,255,255,.5);
+                border: 2px solid black;
+            }
+        </style>
+    </head>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
 <script src="script.js"></script>
 <body ng-app="myApp" ng-controller="addFamily">
 
-<h2>My Todo List</h2>
+<h2>My Family History List</h2>
 
 <form ng-submit="addFamily()">
     <input type="text" ng-model="person" size="50" placeholder="person">

@@ -1,42 +1,227 @@
 <!doctype html>
 <html>
-  <head>
+
+<head>
     <title>Socket.IO chat</title>
-    
+
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font: 13px Helvetica, Arial;
+        }
+        
+        #messagingForm {
+            visibility: 'none';
+        }
+        
+        #sendMessage {
+            background: #000;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        
+        #m {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+        
+        #bm {
+            width: 9%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px;
+        }
+        
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #messages li {
+            padding: 5px 10px;
+        }
+        
+        #messages li:nth-child(odd) {
+            background: #eee;
+        }
+        /* Set a style for all buttons */
+        
+        #loginButton {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        /* The Modal (background) */
+        
+        .modal {
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgb(0, 0, 0);
+            /* Fallback color */
+            background-color: rgba(0, 0, 0, 0.4);
+            /* Black w/ opacity */
+            padding-top: 60px;
+        }
+        /* Modal Content/Box */
+        
+        .modal-content {
+            padding: 40px;
+            background-color: #fefefe;
+            margin: 5% auto 15% auto;
+            /* 5% from the top, 15% from the bottom and centered */
+            border: 1px solid #888;
+            width: 80%;
+            border: 2px solid black;
+            text-align: center;
+            /* Could be more or less, depending on screen size */
+        }
+        
+        .button {
+            /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+
+        .button1 {
+            background-color: #4CAF50;
+        }
+        
+        .button2 {
+            background-color: #008CBA;
+        }
+        /* Blue */
+        
+        .button3 {
+            background-color: #f44336;
+        }
+        /* Red */
+        
+        .button5 {
+            background-color: #555555;
+        }
+        /* Black */
     </style>
-  </head>
-  <body>
-    <ul id="messages"></ul>
-    <form action="" id='ab'>
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
+</head>
+
+<body>
+    <div id="login" class='modal' style='overflow: hidden'>
+        <form action="" id="loginUser" class='modal-content animate'>
+            <div class="container">
+                <label><b>USERNAME      </b></label>
+                <input type="text" placeholder="Enter Username" id='name' name="name" required>
+                </br>
+                </br>
+                <div id="colordiv">
+                    <label><b>BACKGROUND_COLOR</b></label></br>
+                    <button type="button" id="colorButton" class="button backgroundButton button1">Green</button>
+                    <button type="button" id="colorButton" class="button backgroundButton button2">Blue</button>
+                    <button type="button" id="colorButton" class="button backgroundButton button3">Red</button>
+                    <button type="button" id="colorButton" class="button backgroundButton button5">Black</button>
+                </div>
+                <div id="fgcolordiv">
+                    <label><b>BACKGROUND_COLOR</b></label></br>
+                    <button type="button" id="colorButton" class="button foreButton button1">Green</button>
+                    <button type="button" id="colorButton" class="button foreButton button2">Blue</button>
+                    <button type="button" id="colorButton" class="button foreButton button3">Red</button>
+                    <button type="button" id="colorButton" class="button foreButton button5">Black</button>
+                </div>
+                </br>
+                <div id='previewDiv'>
+                    <ul style='list-style-type: none'>
+                        <li id='preview'>USERNAME: YOUR MESSAGES</li>
+                    </ul>
+                </div>
+                </br>
+                <button type="submit" id='loginButton'>Login</button>
+            </div>
+        </form>
+    </div>
+    <div id="messagingForm">
+        <ul id="messages"></ul>
+        <form action="" id='sendMessage'>
+            <input id="m" autocomplete="off" /><button id='bm'>Send</button>
+        </form>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
         var socket = io();
-        var username = "Spencer";
-        var color="rgb(0,0,255)";
-        $('form').submit(function(){
-            var data = {user:username, message:$('#m').val(), color:color};
+        var username = "Guest";
+        var color = "rgb(0,0,255)";
+        var foreColor = "rgb(255,255,255)";
+        $(".backgroundButton").click(function(){
+            color = $(this).css("background-color");
+            color = color.replace(/\s+/g, '');
+            updatePreview();
+        });
+        $(".foreButton").click(function(){
+            foreColor = $(this).css("background-color");
+            foreColor = foreColor.replace(/\s+/g, '');
+            updatePreview();
+        });
+
+        $('#loginUser').submit(function () {
+            username = $('#name').val();
+            var data = { user: username, message: 'JOINED', color: color };
             socket.emit('chat', data);
-            $('#m').val('');
-            console.log(data);
+            $('#login').remove();
+            $('#messagingForm').show();
             return false;
         });
-        socket.on('chat', function(data){
+        $('#sendMessage').submit(function () {
+            var data = { user: username, message: $('#m').val(), color: color };
+            socket.emit('chat', data);
+            $('#m').val('');
+            return false;
+        });
+        socket.on('chat', function (data) {
             var msg = data.user + ": " + data.message;
             var li = '<li style=background-color:' + data.color + ">" + msg;
+            console.log(li);
             $('#messages').append(li);
         });
+        $('#loginForm').show();
+        $('#messagingForm').hide();
+        updatePreview();
+
+        function updatePreview()
+        {
+             $('#preview').css("background-color",color);
+             $('#preview').css("color",foreColor);
+        }  
     </script>
-  </body>
+</body>
+
 </html>
